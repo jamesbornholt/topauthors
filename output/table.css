@@ -1,15 +1,26 @@
+html {
+    font-family: 'Source Sans Pro', sans-serif;
+}
 table {
     border-collapse: collapse;
 }
-tr.new-total {
+tr.new-group {
     border-top: 1px solid black;
 }
 th, td {
     padding: 2px;
-    text-align: right;
+    text-align: center;
 }
 .author {
     text-align: left;
+    white-space: nowrap;
+}
+.total {
+    text-align: right;
+    padding-right: 2em;
+}
+td.count, th.year {
+    font-size: 90%;
 }
 tr:nth-child(even) {
     background: #eee;

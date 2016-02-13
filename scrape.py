@@ -15,7 +15,7 @@ def get_conf_urls(name):
     root = ROOT_URL + name + "/"
     actual = root + name
 
-    print "Downloading: %s" % root
+    print("Downloading: {0}".format(root))
     r = requests.get(root)
     index = r.content
     page = BeautifulSoup(index, 'html.parser')
@@ -24,7 +24,7 @@ def get_conf_urls(name):
     confs = []
     for l in links:
         href = l.get('href')
-        if href.startswith(actual) and "best" not in href:
+        if href.startswith(actual) and "best" not in href and "w.html" not in href:
             try:
                 i = confs.index(href)
             except ValueError:
@@ -33,7 +33,7 @@ def get_conf_urls(name):
     return confs
 
 def get_conf(name, url):
-    print "Downloading: %s" % url
+    print("Downloading: {0}".format(url))
     r = requests.get(url)
     page = BeautifulSoup(r.content, 'html.parser')
 
