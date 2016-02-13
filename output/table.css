@@ -1,0 +1,16 @@
+table {
+    border-collapse: collapse;
+}
+tr.new-total {
+    border-top: 1px solid black;
+}
+th, td {
+    padding: 2px;
+    text-align: right;
+}
+.author {
+    text-align: left;
+}
+tr:nth-child(even) {
+    background: #eee;
+}
