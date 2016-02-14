@@ -37,6 +37,12 @@ def get_conf(name, url):
     r = requests.get(url)
     page = BeautifulSoup(r.content, 'html.parser')
 
+    datePublished = page.select("span[itemprop=datePublished]")
+    if not datePublished:
+        print("  Error: no datePublished")
+        return None
+    year = datePublished[0].get_text()
+
     elems = page.select("li.inproceedings")
     papers = []
     for p in elems:
@@ -52,7 +58,8 @@ def get_conf(name, url):
             authors.append(Author(author_id, author_name))
         papers.append(Paper(pid, title, authors))
 
-    year = page.select("span[itemprop=datePublished]")[0].get_text()
+    print("  Found {0} papers".format(len(papers)))
+
     return Conference(name.upper(), year, papers)
 
 def get_all_confs(name):
@@ -60,7 +67,8 @@ def get_all_confs(name):
     confs = []
     for u in urls:
         conf = get_conf(name, u)
-        confs.append(conf)
+        if conf is not None:
+            confs.append(conf)
         time.sleep(1.0)
     return confs
 

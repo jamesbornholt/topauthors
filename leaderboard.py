@@ -31,7 +31,7 @@ def leaderboard_html(confs, name, path, min_papers):
     table += "<th class='author'>Author</th>"
     table += "<th class='total'>Total</th>"
     for y in sorted(years):
-        table += "<th class='year'>{0}</th>".format(y)
+        table += "<th class='year'>'{0}</th>".format(y[2:])
     table += "\n</tr>\n"
 
     last_n = summary.most_common(1)[0][1]
@@ -63,12 +63,20 @@ def leaderboard_html(confs, name, path, min_papers):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Scrape a DBLP conference')
-    parser.add_argument('conference', help="The conference short name")
+    parser.add_argument('conference', nargs='+', help="The conference short name")
     parser.add_argument('--min-papers', type=int, default=5, help="Min. papers to include")
+    parser.add_argument('--output', '-o', help="Output file")
     args = parser.parse_args()
 
-    name = args.conference.lower()
+    confs = []
+    for name in args.conference:
+        confs.extend(load_conference(name.lower()))
 
-    confs = load_conference(name)
-    leaderboard_html(confs, name.upper(), "output/{0}.html".format(name), 
-                      min_papers=args.min_papers)
+    title = ", ".join(name.upper() for name in args.conference)
+    if args.output is None:
+        filename = "_".join(name.lower() for name in args.conference)
+        output_path = "output/{0}.html".format(filename)
+    else:
+        output_path = args.output
+
+    leaderboard_html(confs, title, output_path, args.min_papers)
