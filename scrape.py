@@ -10,6 +10,7 @@ from bs4 import BeautifulSoup
 from tuples import *
 
 ROOT_URL = "http://dblp.uni-trier.de/db/conf/"
+STOPWORDS = ["panel", "keynote", "poster"]
 
 def get_conf_urls(name):
     root = ROOT_URL + name + "/"
@@ -39,13 +40,16 @@ def get_conf(name, url):
 
     datePublished = page.select("span[itemprop=datePublished]")
     if not datePublished:
-        print("  Error: no datePublished")
+        print("  Skipped: no datePublished found")
         return None
     year = datePublished[0].get_text()
 
     elems = page.select("li.inproceedings")
     papers = []
     for p in elems:
+        session = p.find_previous("header").get_text().lower()
+        if any(s in session for s in STOPWORDS):
+            continue
         title = p.select(".title")[0].get_text()
         if title[-1] == ".":
             title = title[:-1]
