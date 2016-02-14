@@ -2,6 +2,7 @@ from collections import namedtuple
 import argparse
 import os
 import pickle
+import re
 import time
 
 import requests
@@ -10,7 +11,17 @@ from bs4 import BeautifulSoup
 from tuples import *
 
 ROOT_URL = "http://dblp.uni-trier.de/db/conf/"
-STOPWORDS = ["panel", "keynote", "poster"]
+SESSION_STOPWORDS = ["panel", "keynote", "poster"]
+LINK_STOPWORDS = ["best", "w.html"]
+
+def load_name_mappings(path):
+    renames = {}
+    f = open(path)
+    for line in f:
+        before, after = line.split("->")
+        renames[before.strip()] = after.strip()
+    f.close()
+    return renames
 
 def get_conf_urls(name):
     root = ROOT_URL + name + "/"
@@ -21,19 +32,29 @@ def get_conf_urls(name):
     index = r.content
     page = BeautifulSoup(index, 'html.parser')
 
-    links = page.select("nav a")
+    groups = page.select("ul.publ-list")
     confs = []
-    for l in links:
-        href = l.get('href')
-        if href.startswith(actual) and "best" not in href and "w.html" not in href:
-            try:
-                i = confs.index(href)
-            except ValueError:
-                confs.append(href)
+    for group in groups:
+        links = group.select("nav a")
+        urls = []
+        for l in links:
+            href = l.get('href')
+            if href.startswith(actual) and all(s not in href for s in LINK_STOPWORDS):
+                if href not in urls:
+                    urls.append(href)
+        # try to select the "best" url for this group: the "conf2015.html" link
+        # if it exists, otherwise the first if it exists
+        for url in urls:
+            if re.search("{0}[0-9]{{2,4}}\.html$".format(name), url):
+                confs.append(url)
+                break
+        else:
+            if urls:
+                confs.append(urls[0])
 
     return confs
 
-def get_conf(name, url):
+def get_conf(name, url, renames):
     print("Downloading: {0}".format(url))
     r = requests.get(url)
     page = BeautifulSoup(r.content, 'html.parser')
@@ -48,7 +69,7 @@ def get_conf(name, url):
     papers = []
     for p in elems:
         session = p.find_previous("header").get_text().lower()
-        if any(s in session for s in STOPWORDS):
+        if any(s in session for s in SESSION_STOPWORDS):
             continue
         title = p.select(".title")[0].get_text()
         if title[-1] == ".":
@@ -59,6 +80,8 @@ def get_conf(name, url):
         for a in auths:
             author_id = a.get('href')
             author_name = a.span.get_text()
+            if author_name in renames:
+                author_name = renames[author_name]
             authors.append(Author(author_id, author_name))
         papers.append(Paper(pid, title, authors))
 
@@ -67,10 +90,11 @@ def get_conf(name, url):
     return Conference(name.upper(), year, papers)
 
 def get_all_confs(name):
+    renames = load_name_mappings("names.txt")
     urls = get_conf_urls(name)
     confs = []
     for u in urls:
-        conf = get_conf(name, u)
+        conf = get_conf(name, u, renames)
         if conf is not None:
             confs.append(conf)
         time.sleep(1.0)

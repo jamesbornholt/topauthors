@@ -11,7 +11,7 @@ def authors_by_year(confs):
     for conf in confs:
         for paper in conf.papers:
             for author in paper.authors:
-                authors[author][conf.year] += 1
+                authors[author.name][conf.year] += 1
 
     return authors
 
@@ -36,7 +36,7 @@ def leaderboard_html(confs, name, path, min_papers):
 
     last_n = summary.most_common(1)[0][1]
     most_common = summary.most_common()
-    most_common.sort(key=lambda t: t[0].name.split()[-1])
+    most_common.sort(key=lambda t: t[0].split()[-1])
     most_common.sort(key=lambda t: t[1], reverse=True)
     for author, n in most_common:
         if n < min_papers:
@@ -46,7 +46,7 @@ def leaderboard_html(confs, name, path, min_papers):
             last_n = n
         else:
             table += "<tr>"
-        table += "<td class='author'>{0}</td>".format(author.name)
+        table += "<td class='author'>{0}</td>".format(author)
         table += "<td class='total'>{0}</td>".format(n)
         for y in sorted(years):
             ny = authors[author][y]

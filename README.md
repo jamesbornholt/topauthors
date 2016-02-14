@@ -4,6 +4,13 @@ This is a set of scripts to tell you who the most prolific authors at a conferen
 Inspired by existing lists for [ISCA](http://pages.cs.wisc.edu/~arch/www/iscabibhall.html)
 and [OSDI & SOSP](http://from-a-to-remzi.blogspot.com/2013/05/the-systems-top-50.html).
 
+All the expected caveats apply: quality not quantity, a single number is worthless,
+not guaranteed to scrape DBLP correctly, DBLP data isn't perfect, etc.
+
+Name mappings are borrowed from [pcminer](https://github.com/franktip/pcminer).
+
+## Usage
+
 Requires Python 3.
 
 To set up:
