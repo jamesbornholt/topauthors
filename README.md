@@ -15,3 +15,7 @@ To use:
     python3 leaderboard.py asplos
 
 Then open `output/asplos.html`.
+
+You can pass one conference, or many to get an aggregate across all:
+
+    python3 leaderboard.py -o output/systems.html sosp osdi
