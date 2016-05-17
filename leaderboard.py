@@ -46,7 +46,7 @@ def leaderboard_html(confs, name, path, min_papers):
             last_n = n
         else:
             table += "<tr>"
-        table += "<td class='author'>{0}</td>".format(author)
+        table += "<td class='author'>{0}</td>".format(author.encode('ascii','ignore'))
         table += "<td class='total'>{0}</td>".format(n)
         for y in sorted(years):
             ny = authors[author][y]
